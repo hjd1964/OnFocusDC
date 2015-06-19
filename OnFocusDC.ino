@@ -29,24 +29,20 @@
 #define FirmwareNumber "1.0a1"
 #define FirmwareName   "On-FocusDC"
 
-#define MICROS_PER_STEP 10.0  // microns (1/1000 of a mm) of focus travel per step
-
- /*
-  PFn                             PWM frequency divider
-  MInnnnn                         Move in nnnnn milliseconds 
-  MOnnnnn                         Move out nnnnn milliseconds
-  ST                              Halt motion
-  M?                              Moving? (Y/N)
-  V?                              Version? (1.00)
-  FInnnnn                         Set fPLull in position nnnnn in milliseconds
-  FOnnnnn                         Set full out position nnnnn in milliseconds
-  PLnnn                           Set power level in percent nnn
- */
-
 #include <EEPROM.h>
+
+// ----------------------------------------------------------------------------------------------------------
+// Configuration
+#define MICROS_PER_STEP 10.0  // microns (1/1000 of a mm) of focus travel per millisecond
+
+// I used a SN754410NE Quad H-Driver (2 of its 4 inputs) to run the focuser motor:
+// basically a logic LOW/HIGH on the Arduino pins 9/10 causes the respective motor driver output
+// to be either Vmotor or Gnd.  This allows us to configure - Gnd/Gnd (off), Vmot/Gnd (fwd), or Gnd/Vmot (rev)
+// ----------------------------------------------------------------------------------------------------------
 
 int foc_pole1 = 9;        // control motor/direction
 int foc_pole2 = 10;       // control motor/direction 
+
 char inChar;              // incoming serial byte
 char buffer[80];          // command buffer
 char buffer2[40];         // short buffer
