@@ -33,7 +33,7 @@
 
 // ----------------------------------------------------------------------------------------------------------
 // Configuration
-#define MICROS_PER_STEP 10.0  // microns (1/1000 of a mm) of focus travel per millisecond
+#define MICROS_PER_MS 10.0  // microns (1/1000 of a mm) of focus travel per millisecond
 
 // I used a SN754410NE Quad H-Driver (2 of its 4 inputs) to run the focuser motor:
 // basically a logic LOW/HIGH on the Arduino pins 9/10 causes the respective motor driver output
@@ -56,12 +56,17 @@ long startTime;
 long dir = 0;             // move in this direction (-1 for IN, 0 for STOP, 1 for OUT)
 long thisTime = 0;        // current position in ms
 long lastTime = 0;        // last position in ms
-long fullIn = 100;        // full in position in milliseconds
-long fullOut = 100;       // full out position in milliseconds
+long fullIn = 0;          // full in position in milliseconds
+long fullOut = 1000;      // full out position in milliseconds
 long powerLevel = 50;     // power level in percent
 byte powerLevel1 = 128;   // power level in byte size value
 
 long now;
+
+//  EEPROM addresses/offsets for permanent storage
+long base=100;
+#define EE_key  0
+#define EE_base 4
 
 void setup()
 {
@@ -75,16 +80,32 @@ void setup()
   digitalWrite(foc_pole2,0);
   dir=0;
 
-  // recall where we were last time
-  lastTime=EEPROM_readLong(0);
-  // recall the fi position
-  fullIn=EEPROM_readLong(4);
-  // recall the fo position
-  fullOut=EEPROM_readLong(8);
-  // recall the pwm divisor
-  pwmDivisor=EEPROM_readLong(12);
-  // recall the power level
-  powerLevel1=EEPROM_readLong(16);
+  // read the settings
+  long key=EEPROM_readLong(EE_key);
+  if (key!=1930230197) {
+    EEPROM_writeLong(EE_key,1930230197);
+    EEPROM_writeLong(EE_base,100); base=100;
+    EEPROM_writeLong(12,pwmDivisor);
+    EEPROM_writeLong(16,powerLevel1);
+
+    EEPROM_writeLong(base+0,lastTime);
+    EEPROM_writeLong(base+4,fullIn);
+    EEPROM_writeLong(base+8,fullOut);
+  } else {
+    base=EEPROM_readLong(EE_base);
+    pwmDivisor=EEPROM_readLong(12);
+    powerLevel1=EEPROM_readLong(16);
+
+    lastTime=EEPROM_readLong(base+0);
+    fullIn=EEPROM_readLong(base+4);
+    fullOut=EEPROM_readLong(base+8);
+    
+    // move base to the next position, with these rolling writes the EEPROM should be good for >10 million focuser moves
+    base+=1; if (base>1000) base=100; EEPROM_writeLong(EE_base,base);
+    EEPROM_writeLong(base+0,lastTime);
+    EEPROM_writeLong(base+4,fullIn);
+    EEPROM_writeLong(base+8,fullOut);
+  }
 }
 
 void loop()
@@ -125,7 +146,7 @@ void loop()
 
       // and record where we are in the travel
       lastTime=thisTime;
-      EEPROM_writeLong(0,lastTime);
+      EEPROM_writeLong(base+0,lastTime);
     }
   }
 
