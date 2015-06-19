@@ -64,19 +64,19 @@ void ProcessCommand() {
       } else
       // ask for scale
       if (strcmp(buffer2,"GS") == 0) { 
-        if (strlen(buffer3)==0) { char reply[20]; dtostrf(MICROS_PER_STEP,1,3,reply); Serial.print(reply); Serial.print("#"); } else commandError=true;
+        if (strlen(buffer3)==0) { char reply[20]; dtostrf(MICROS_PER_MS,1,3,reply); Serial.print(reply); Serial.print("#"); } else commandError=true;
       } else
       // set current position as zero
       if (strcmp(buffer2,"SZ") == 0) { 
-        if ((dir==0) && (strlen(buffer3)==0)) { lastTime=0; } else commandError=true;
+        if ((dir==0) && (strlen(buffer3)==0)) { lastTime=0; EEPROM_writeLong(base+0,lastTime); } else commandError=true;
       } else
       // set full in position
       if (strcmp(buffer2,"SI") == 0) {
-        if ((dir==0) && (numericTail(&fullIn,0,999999))) { EEPROM_writeLong(4,fullIn); } else commandError=true;
+        if ((dir==0) && (numericTail(&fullIn,0,999999))) { EEPROM_writeLong(base+4,fullIn); } else commandError=true;
       } else
       // set full out position
       if (strcmp(buffer2,"SM") == 0) { 
-        if ((dir==0) && (numericTail(&fullOut,0,999999))) { EEPROM_writeLong(8,fullOut); } else commandError=true;
+        if ((dir==0) && (numericTail(&fullOut,0,999999))) { EEPROM_writeLong(base+8,fullOut); } else commandError=true;
       } else
       // set power level
       if (strcmp(buffer2,"SP") == 0) { 
