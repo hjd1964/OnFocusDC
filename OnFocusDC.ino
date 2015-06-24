@@ -24,9 +24,10 @@
  * Date                Version           Comment
  * 11-14-2011          0.65              First release
  * 06-18-2015          1.0a1             Overhaul, replaced command processing code
+ * 06-24-2015          1.0a2             Added :GI# command, switched to :GL# and :SLn# for getting and setting power level.
 */
 
-#define FirmwareNumber "1.0a1"
+#define FirmwareNumber "1.0a2"
 #define FirmwareName   "On-FocusDC"
 
 #include <EEPROM.h>
@@ -87,6 +88,7 @@ void setup()
     EEPROM_writeLong(EE_base,100); base=100;
     EEPROM_writeLong(12,pwmDivisor);
     EEPROM_writeLong(16,powerLevel1);
+    EEPROM_writeLong(20,powerLevel);
 
     EEPROM_writeLong(base+0,lastTime);
     EEPROM_writeLong(base+4,fullIn);
@@ -95,6 +97,7 @@ void setup()
     base=EEPROM_readLong(EE_base);
     pwmDivisor=EEPROM_readLong(12);
     powerLevel1=EEPROM_readLong(16);
+    powerLevel=EEPROM_readLong(20);
 
     lastTime=EEPROM_readLong(base+0);
     fullIn=EEPROM_readLong(base+4);
