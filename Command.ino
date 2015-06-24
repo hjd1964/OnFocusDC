@@ -54,17 +54,29 @@ void ProcessCommand() {
       if (strcmp(buffer2,"IP") == 0) { 
         if (strlen(buffer3)==0) { Serial.print(FirmwareName); Serial.print("#"); } else commandError=true;
       } else
-      // ask for current position
-      if (strcmp(buffer2,"GP") == 0) { 
-        if (strlen(buffer3)==0) { Serial.print(lastTime); Serial.print("#"); } else commandError=true;
+      // ask for full in position
+      if (strcmp(buffer2,"GI") == 0) {
+        if (strlen(buffer3)==0) { Serial.print(fullIn); Serial.print("#"); } else commandError=true;
       } else
       // ask for max position
       if (strcmp(buffer2,"GM") == 0) { 
         if (strlen(buffer3)==0) { Serial.print(fullOut); Serial.print("#"); } else commandError=true;
       } else
+      // ask for current position
+      if (strcmp(buffer2,"GP") == 0) { 
+        if (strlen(buffer3)==0) { Serial.print(lastTime); Serial.print("#"); } else commandError=true;
+      } else
+      // ask for current power
+      if (strcmp(buffer2,"GL") == 0) { 
+        if (strlen(buffer3)==0) { Serial.print(powerLevel); Serial.print("#"); } else commandError=true;
+      } else
       // ask for scale
       if (strcmp(buffer2,"GS") == 0) { 
         if (strlen(buffer3)==0) { char reply[20]; dtostrf(MICROS_PER_MS,1,3,reply); Serial.print(reply); Serial.print("#"); } else commandError=true;
+      } else
+      // set current position as zero
+      if (strcmp(buffer2,"SZ") == 0) { 
+        if ((dir==0) && (strlen(buffer3)==0)) { lastTime=0; EEPROM_writeLong(base+0,lastTime); } else commandError=true;
       } else
       // set current position as zero
       if (strcmp(buffer2,"SZ") == 0) { 
@@ -79,8 +91,8 @@ void ProcessCommand() {
         if ((dir==0) && (numericTail(&fullOut,0,999999))) { EEPROM_writeLong(base+8,fullOut); } else commandError=true;
       } else
       // set power level
-      if (strcmp(buffer2,"SP") == 0) { 
-        if ((dir==0) && (numericTail(&powerLevel,0,100))) { powerLevel1=map(powerLevel,0,100,0,255); EEPROM_writeLong(16,powerLevel1); } else commandError=true;
+      if (strcmp(buffer2,"SL") == 0) { 
+        if ((dir==0) && (numericTail(&powerLevel,0,100))) { powerLevel1=map(powerLevel,0,100,0,255); EEPROM_writeLong(20,powerLevel); EEPROM_writeLong(16,powerLevel1); } else commandError=true;
       } else
       // command not recognized
       commandError=true;
